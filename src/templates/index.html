@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<br>
+<div class="row">
+    <div class="col-md-10">
+        <h1>ようこそ、とても簡単なリポジトリへ。</h1>
+    </div>
+    <div class="col-md-2">
+        <a href="/{{ user_dict["id"] }}" class="btn btn-primary">login</a>
+    </div>
+</div>
+
+<hr>
+<p>This is a simple repository for <b>Pijul</b> and <b>Git</b>!</p>
+
+{% endblock %}

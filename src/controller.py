@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
 
-from starlette.templating import Jinja2Templates
-
+from typing import Optional
 
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from pathlib import Path
 PATH_BASE = Path(__file__).resolve().parent
 PATH_STATIC = str(PATH_BASE / "static")
 PATH_REPO = str(PATH_BASE / "repository")
+
 
 def create_app():
     _app = FastAPI(
@@ -27,14 +27,7 @@ def create_app():
         StaticFiles(directory=PATH_STATIC, html=False),
         name="static",
     )
-    # TODO: Database Internal Repository
-    # repository
-    # Url "/repository"以下にrepositoryファイルをマウント
-    _app.mount(
-        "/repository",
-        StaticFiles(directory=PATH_REPO, html=False),
-        name="repository",
-    )
+
     return _app
 
 
@@ -46,21 +39,70 @@ jinja_env = templates.env  # Jinja2.Environment : filterやglobalの設定用
 
 
 @app.get("/")
-async def root():
-    return RedirectResponse("/_kida_hajime_")
+async def get_index(request: Request):
+    user_dict: dict[str, str] = {"id": "KidaHajime",
+                                 "username": "紀田　創"}
+    return templates.TemplateResponse("index.html",
+                                      {"request": request,
+                                       "user_dict": user_dict})
 
 
 @app.get("/{user_id}")
-async def root(request: Request, user_id: str):
+async def get_dashboard(request: Request, user_id: str):
     # pathlib: オブジェクト指向のファイルパスシステム
     # __file__でこのファイルのパスを取得
-    repo_path = Path(PATH_REPO) / user_id
-    if repo_path.is_dir():
-        repositories: list[str] = [repo.name for repo in repo_path.iterdir() if repo.is_dir()]
+    user_repos_path: Path = Path(PATH_REPO) / user_id
+    if user_repos_path.is_dir():
+        # repositoryディレクトリ内のディレクトリをリポジトリとして取得
+        # TODO: Dict DB request(reponame & descriptions)
+        repositories: list[str] = [repo.name for repo in user_repos_path.iterdir() if repo.is_dir()]
     else:
-        repositories: list[str] = ["test"]
+        # TODO: Error
+        repositories = []
     return templates.TemplateResponse("dashboard.html",
                                       {"request": request,
-                                       "id": user_id,
+                                       "user_id": user_id,
                                        "username": "紀田　創",
                                        "repository": repositories})
+
+
+# /{user_id}/{repository}(?subdir=xxx/xxx)
+@app.get("/{user_id}/{repository}")
+async def get_repository(request: Request,
+                         user_id: str,
+                         repository: str,
+                         subdir: Optional[str] = None):
+    # TODO: query reject
+    if subdir:
+        target_path: Path = Path(PATH_REPO) / user_id / repository / subdir
+    else:
+        target_path: Path = Path(PATH_REPO) / user_id / repository
+    readme_path = target_path / 'README.md'
+    if readme_path.exists():
+        f = open(str(readme_path), "r", encoding="utf_8")
+        readme_file: str = f.read()
+    else:
+        readme_file: str = ""
+    if target_path.is_dir():
+        # リポジトリ内のディレクトリを取得
+        target_dirs: list[str] = [repo.name for repo in target_path.iterdir() if repo.is_dir()]
+        target_files: list[str] = [repo.name for repo in target_path.iterdir() if repo.is_file()]
+    else:
+        # TODO: Error
+        target_dirs = []
+        target_files = []
+    return templates.TemplateResponse("repository.html",
+                                      {"request": request,
+                                       "user_id": user_id,
+                                       "repository": repository,
+                                       "target_dirs": sorted(target_dirs),
+                                       "target_files": sorted(target_files),
+                                       "readme_file": readme_file,
+                                       "subdir": subdir})
+
+
+@app.get("/{user_id}/{repository}")
+async def view_file():
+    return 0
+
+# TODO: 戻る, ファイルビューア, リポジトリページのパス化, README, md

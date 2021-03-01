@@ -8,7 +8,7 @@
         ID
     </div>
     <div class="col-sm-11">
-        : {{ id }}
+        : {{ user_id }}
     </div>
     <div class="col-sm-1 text-center" >
         作者名
@@ -21,7 +21,7 @@
 <div class="container-sm">
     {% for repo in repository %}
     <div class="border border-dark rounded per-repos">
-        <p class="fs-4 fw-bold">{{ repo }}</p>
+        <a href="/{{ user_id }}/{{ repo }}" class="fs-4 fw-bold">{{ repo }}</a>
         <hr>
         <p>description or README.</p>
     </div>
