@@ -9,9 +9,9 @@ from pathlib import Path
 # TODO: Database
 # TODO: Pijul機能追加
 
-PATH_BASE = Path(__file__).resolve().parent
-PATH_STATIC = str(PATH_BASE / "static")
-PATH_REPO = str(PATH_BASE / "repository")
+PATH_BASE: Path = Path(__file__).resolve().parent
+PATH_STATIC: Path = PATH_BASE / "static"
+PATH_REPO: Path = PATH_BASE / "repository"
 
 
 def create_app():
@@ -24,7 +24,7 @@ def create_app():
     # Url "/static"以下にstaticファイルをマウント
     _app.mount(
         "/static",
-        StaticFiles(directory=PATH_STATIC, html=False),
+        StaticFiles(directory=str(PATH_STATIC), html=False),
         name="static",
     )
 
@@ -74,35 +74,51 @@ async def get_repository(request: Request,
                          subdir: Optional[str] = None):
     # TODO: query reject
     if subdir:
-        target_path: Path = Path(PATH_REPO) / user_id / repository / subdir
+        target_path: Path = PATH_REPO / user_id / repository / subdir
+        if len(subdir.split("/")) >= 2:
+            parent: str = f"/{user_id}/{repository}?subdir={Path(subdir).parent}"
+        else:
+            parent: str = f"/{user_id}/{repository}"
     else:
-        target_path: Path = Path(PATH_REPO) / user_id / repository
+        target_path: Path = PATH_REPO / user_id / repository
+        parent: str = f"/{user_id}"
+
     readme_path = target_path / 'README.md'
     if readme_path.exists():
-        f = open(str(readme_path), "r", encoding="utf_8")
-        readme_file: str = f.read()
+        readme_file: str = readme_path.read_text()
     else:
         readme_file: str = ""
+
     if target_path.is_dir():
         # リポジトリ内のディレクトリを取得
-        target_dirs: list[str] = [repo.name for repo in target_path.iterdir() if repo.is_dir()]
-        target_files: list[str] = [repo.name for repo in target_path.iterdir() if repo.is_file()]
+        target_dirs: list[str] = sorted([repo.name for repo in target_path.iterdir() if repo.is_dir()])
+        target_files: list[str] = sorted([repo.name for repo in target_path.iterdir() if repo.is_file()])
     else:
         # TODO: Error
         target_dirs = []
         target_files = []
+
     return templates.TemplateResponse("repository.html",
                                       {"request": request,
                                        "user_id": user_id,
                                        "repository": repository,
-                                       "target_dirs": sorted(target_dirs),
-                                       "target_files": sorted(target_files),
+                                       "target_dirs": target_dirs,
+                                       "target_files": target_files,
                                        "readme_file": readme_file,
-                                       "subdir": subdir})
+                                       "subdir": subdir,
+                                       "parent": parent})
 
 
 @app.get("/{user_id}/{repository}")
-async def view_file():
+async def view_file(request: Request,
+                    user_id: str,
+                    repository: str,
+                    subdir: Optional[str] = None,
+                    file: Optional[str] = None):
     return 0
 
-# TODO: 戻る, ファイルビューア, リポジトリページのパス化, README, md
+# TODO: ファイルビューア, リポジトリページのパス化, README, md, 戻るボタン＝前ディレクトリ
+"""
+    リポジトリ機能:
+        config機能: 話数管理、タイトル管理、
+"""

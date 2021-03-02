@@ -1,13 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
+<div class="col-sm">
+    <a class="btn btn-lg btn-outline-success" href="{{ parent }}" role="button">戻る</a>
+</div>
 <br>
-<h4>{{ repository }}{% if subdir %}/{{ subdir }}{% endif %}</h4>
+<h3>
+    <a href="/{{ user_id }}/{{ repository }}">{{ repository }}</a>{% if subdir %}/{{ subdir }}{% endif %}</h3>
 <hr>
 <br>
 <div class="container-sm">
-    <div class="border border-dark rounded per-repos row fs-3">
+    <div class="border border-secondary rounded per-repos row fs-4">
         {% for dir in target_dirs %}
-        <a href="/{{ user_id }}/{{ repository }}?subdir={% if subdir %}{{subdir}}/{% endif %}{{ dir }}">フォルダ: {{ dir }}</a>
+        <a href="/{{ user_id }}/{{ repository }}?subdir={% if subdir %}{{subdir}}/{% endif %}{{ dir }}">フォルダ: /{{ dir }}</a>
         {% endfor %}
         {% for file in target_files %}
         <a href="/{{ user_id }}/{{ repository }}?{% if subdir %}subdir={{subdir}}&{% endif %}file={{ file }}">ファイル: {{ file }}</a>
