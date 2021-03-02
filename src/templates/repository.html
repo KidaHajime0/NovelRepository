@@ -7,18 +7,10 @@
 <div class="container-sm">
     <div class="border border-dark rounded per-repos row fs-3">
         {% for dir in target_dirs %}
-        {% if subdir %}
-        <a href="/{{ user_id }}/{{ repository }}?subdir={{subdir}}/{{ dir }}">フォルダ: {{ dir }}</a>
-        {% else %}
-        <a href="/{{ user_id }}/{{ repository }}?subdir={{ dir }}">フォルダ: {{ dir }}</a>
-        {% endif %}
+        <a href="/{{ user_id }}/{{ repository }}?subdir={% if subdir %}{{subdir}}/{% endif %}{{ dir }}">フォルダ: {{ dir }}</a>
         {% endfor %}
         {% for file in target_files %}
-        {% if subdir %}
-        <a href="/{{ user_id }}/{{ repository }}?subdir={{subdir}}&file={{ file }}">ファイル: {{ file }}</a>
-        {% else %}
-        <a href="/{{ user_id }}/{{ repository }}?file={{ file }}">ファイル: {{ file }}</a>
-        {% endif %}
+        <a href="/{{ user_id }}/{{ repository }}?{% if subdir %}subdir={{subdir}}&{% endif %}file={{ file }}">ファイル: {{ file }}</a>
         {% endfor %}
     </div>
     <br>
