@@ -115,7 +115,7 @@ async def view_file(request: Request,
                     repository: str,
                     subdir: Optional[str] = None,
                     file: Optional[str] = None):
-    return 1
+    return 0
 
 # TODO: ファイルビューア, リポジトリページのパス化, README, md
 """
