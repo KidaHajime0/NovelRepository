@@ -117,7 +117,7 @@ async def view_file(request: Request,
                     file: Optional[str] = None):
     return 0
 
-# TODO: ファイルビューア, リポジトリページのパス化, README, md, 戻るボタン＝前ディレクトリ
+# TODO: ファイルビューア, リポジトリページのパス化, README, md
 """
     リポジトリ機能:
         config機能: 話数管理、タイトル管理、
