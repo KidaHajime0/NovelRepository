@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="col-sm">
+    <a class="btn btn-lg btn-outline-success" href="{{ parent }}" role="button">戻る</a>
+</div>
+<br>
+<h3>
+    <a href="/{{ user_id }}/{{ repository }}">{{ repository }}</a>{% if subdir %}/{{ subdir }}{% endif %}/<b>{{ file_name }}<b>
+</h3>
+<hr>
+<br>
+<div class="container-sm">
+    <div class="border border-secondary rounded per-repos row fs-4">
+    <h3>{{ file_name }}</h3>
+    <hr>
+    {{ file_st }}
+    </div>
+    <br>
+</div>
+{% endblock %}
